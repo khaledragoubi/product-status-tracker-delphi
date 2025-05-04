@@ -3,15 +3,26 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/components/ui/sonner';
+import { Button } from '@/components/ui/button';
 import ProductScanner from '@/components/ProductScanner';
 import StatusDisplay from '@/components/StatusDisplay';
 import ProductHistory from '@/components/ProductHistory';
+import LoginForm from '@/components/LoginForm';
 import { Product } from '@/types/product';
 import { findProductByBarcode, mockProducts } from '@/data/mockData';
 
 const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [scanHistory, setScanHistory] = useState<Product[]>([]);
+  const [user, setUser] = useState<string | null>(null);
+  
+  // Check if user is already logged in from localStorage
+  useEffect(() => {
+    const savedUser = localStorage.getItem('delphiUser');
+    if (savedUser) {
+      setUser(savedUser);
+    }
+  }, []);
   
   const handleScan = (barcode: string) => {
     // Find the product by barcode
@@ -41,6 +52,33 @@ const Index = () => {
   const selectProductFromHistory = (product: Product) => {
     setCurrentProduct(product);
   };
+  
+  const handleLogin = (username: string) => {
+    setUser(username);
+    localStorage.setItem('delphiUser', username);
+  };
+  
+  const handleLogout = () => {
+    setUser(null);
+    localStorage.removeItem('delphiUser');
+    toast.info('Vous avez été déconnecté');
+  };
+
+  // If user is not logged in, show login form
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <header className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-primary">Delphi</h1>
+            <p className="text-sm opacity-90">Système de Suivi des Produits</p>
+          </header>
+          
+          <LoginForm onLogin={handleLogin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,8 +89,13 @@ const Index = () => {
               <h1 className="text-2xl font-bold">Delphi</h1>
               <p className="text-sm opacity-90">Système de Suivi des Produits</p>
             </div>
-            <div className="bg-primary-foreground/20 px-3 py-1 rounded-md">
-              <p className="text-sm">Mode Technicien</p>
+            <div className="flex items-center gap-4">
+              <div className="bg-primary-foreground/20 px-3 py-1 rounded-md">
+                <p className="text-sm">Technicien: {user}</p>
+              </div>
+              <Button variant="outline" onClick={handleLogout} size="sm" className="text-primary-foreground bg-transparent border-primary-foreground/30 hover:bg-primary-foreground/20">
+                Déconnexion
+              </Button>
             </div>
           </div>
         </div>
