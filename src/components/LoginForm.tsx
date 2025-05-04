@@ -36,14 +36,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="space-y-1">
+    <Card className="w-full max-w-md mx-auto border-primary">
+      <CardHeader className="space-y-1 bg-primary/10">
         <div className="flex justify-center mb-4">
           <div className="bg-primary/10 p-3 rounded-full">
             <UserRound size={36} className="text-primary" />
           </div>
         </div>
-        <CardTitle className="text-2xl text-center">Identification</CardTitle>
+        <CardTitle className="text-2xl text-center">SAV AMY IO Nc log</CardTitle>
         <CardDescription className="text-center">
           Connectez-vous pour accéder au système de suivi des produits
         </CardDescription>

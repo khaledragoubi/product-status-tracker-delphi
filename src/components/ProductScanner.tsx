@@ -25,19 +25,16 @@ const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
 
   return (
     <form onSubmit={handleSubmit} className="flex w-full space-x-2">
-      <div className="relative flex-1">
-        <Input
-          type="text"
-          placeholder="Scanner ou saisir le code barre"
-          value={barcode}
-          onChange={(e) => setBarcode(e.target.value)}
-          className="pr-10 text-lg py-6"
-          autoFocus
-        />
-        <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-      </div>
-      <Button type="submit" className="text-base py-6">
-        Analyser
+      <Input
+        type="text"
+        placeholder="Scanner ou saisir le code barre"
+        value={barcode}
+        onChange={(e) => setBarcode(e.target.value)}
+        className="text-base py-5 flex-1"
+        autoFocus
+      />
+      <Button type="submit" className="text-base py-5">
+        Valider
       </Button>
     </form>
   );
