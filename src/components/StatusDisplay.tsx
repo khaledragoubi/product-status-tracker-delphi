@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Product, TestStation } from '@/types/product';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,13 +33,8 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
     'BLT': 'Testeur BLT',
     'RF': 'Testeur RF',
     'VISION': 'Vision',
-    'VISION_1': 'Vision 1',
-    'VISION_2': 'Vision 2',
-    'VISION_3': 'Vision 3',
     'UFT': 'Testeur UFT',
-    'RF_SLIDER': 'RF Slider',
-    'BUTTON': 'Testeur Bouton',
-    'LASER': 'Station gravure laser'
+    'RF_SLIDER': 'RF Slider'
   };
 
   return (

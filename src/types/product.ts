@@ -2,13 +2,8 @@ export type TestStation =
   | 'BLT' 
   | 'RF' 
   | 'VISION' 
-  | 'VISION_1'
-  | 'VISION_2'
-  | 'VISION_3'
   | 'UFT' 
-  | 'RF_SLIDER'
-  | 'BUTTON'
-  | 'LASER';
+  | 'RF_SLIDER';
 
 export type ProductStatus = 'PASS' | 'FAIL' | 'IN_PROGRESS';
 

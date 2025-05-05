@@ -1,4 +1,3 @@
-
 import { Product, TestStation, ProductStatus } from '../types/product';
 
 // Helper function to create dates in the past few hours
@@ -18,12 +17,9 @@ export const mockProducts: Product[] = [
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(5) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(4.5) },
-      { station: 'VISION_1', status: 'PASS', timestamp: getRecentDate(4) },
-      { station: 'VISION_2', status: 'PASS', timestamp: getRecentDate(3.5) },
-      { station: 'VISION_3', status: 'PASS', timestamp: getRecentDate(3) },
+      { station: 'VISION', status: 'PASS', timestamp: getRecentDate(4) },
       { station: 'UFT', status: 'PASS', timestamp: getRecentDate(2.5) },
-      { station: 'BUTTON', status: 'PASS', timestamp: getRecentDate(2) },
-      { station: 'LASER', status: 'PASS', timestamp: getRecentDate(1.5) },
+      { station: 'RF_SLIDER', status: 'PASS', timestamp: getRecentDate(1.5) },
     ]
   },
   {
@@ -45,13 +41,12 @@ export const mockProducts: Product[] = [
     serialNumber: 'SN00123458',
     model: 'XC-300',
     currentStatus: 'FAIL',
-    failedStation: 'VISION_2',
+    failedStation: 'VISION',
     failureDate: getRecentDate(2),
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(5) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(4.5) },
-      { station: 'VISION_1', status: 'PASS', timestamp: getRecentDate(4) },
-      { station: 'VISION_2', status: 'FAIL', timestamp: getRecentDate(2), details: 'Component misalignment detected' },
+      { station: 'VISION', status: 'FAIL', timestamp: getRecentDate(2), details: 'Component misalignment detected' },
     ]
   },
   {
@@ -63,12 +58,9 @@ export const mockProducts: Product[] = [
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(6) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(5.5) },
-      { station: 'VISION_1', status: 'PASS', timestamp: getRecentDate(5) },
-      { station: 'VISION_2', status: 'PASS', timestamp: getRecentDate(4.5) },
-      { station: 'VISION_3', status: 'PASS', timestamp: getRecentDate(4) },
+      { station: 'VISION', status: 'PASS', timestamp: getRecentDate(5) },
       { station: 'UFT', status: 'PASS', timestamp: getRecentDate(3.5) },
-      { station: 'BUTTON', status: 'PASS', timestamp: getRecentDate(3) },
-      { station: 'LASER', status: 'PASS', timestamp: getRecentDate(2.5) },
+      { station: 'RF_SLIDER', status: 'PASS', timestamp: getRecentDate(2.5) },
     ]
   },
   {
@@ -77,16 +69,13 @@ export const mockProducts: Product[] = [
     serialNumber: 'SN00123460',
     model: 'XC-400',
     currentStatus: 'FAIL',
-    failedStation: 'BUTTON',
+    failedStation: 'UFT',
     failureDate: getRecentDate(1),
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(4) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(3.5) },
-      { station: 'VISION_1', status: 'PASS', timestamp: getRecentDate(3) },
-      { station: 'VISION_2', status: 'PASS', timestamp: getRecentDate(2.5) },
-      { station: 'VISION_3', status: 'PASS', timestamp: getRecentDate(2) },
-      { station: 'UFT', status: 'PASS', timestamp: getRecentDate(1.5) },
-      { station: 'BUTTON', status: 'FAIL', timestamp: getRecentDate(1), details: 'Button 2 actuation force out of spec' },
+      { station: 'VISION', status: 'PASS', timestamp: getRecentDate(3) },
+      { station: 'UFT', status: 'FAIL', timestamp: getRecentDate(1), details: 'UFT test parameters out of range' },
     ]
   },
 ];
