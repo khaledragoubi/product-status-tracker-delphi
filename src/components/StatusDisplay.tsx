@@ -33,10 +33,12 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
   const stationLabels: Record<TestStation, string> = {
     'BLT': 'Testeur BLT',
     'RF': 'Testeur RF',
+    'VISION': 'Vision',
     'VISION_1': 'Vision 1',
     'VISION_2': 'Vision 2',
     'VISION_3': 'Vision 3',
     'UFT': 'Testeur UFT',
+    'RF_SLIDER': 'RF Slider',
     'BUTTON': 'Testeur Bouton',
     'LASER': 'Station gravure laser'
   };
