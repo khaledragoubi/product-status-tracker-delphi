@@ -9,6 +9,105 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      products: {
+        Row: {
+          adress_io: string | null
+          cle_io: string | null
+          code_2d: string
+          created_at: string | null
+          id: string
+          num_ligne: string
+          num_po: string
+          position: number
+          ref_pcba_actia: string
+          ref_pcba_somfy: string
+          sfc: string
+          status: number
+          updated_at: string | null
+        }
+        Insert: {
+          adress_io?: string | null
+          cle_io?: string | null
+          code_2d: string
+          created_at?: string | null
+          id?: string
+          num_ligne: string
+          num_po: string
+          position: number
+          ref_pcba_actia: string
+          ref_pcba_somfy: string
+          sfc: string
+          status?: number
+          updated_at?: string | null
+        }
+        Update: {
+          adress_io?: string | null
+          cle_io?: string | null
+          code_2d?: string
+          created_at?: string | null
+          id?: string
+          num_ligne?: string
+          num_po?: string
+          position?: number
+          ref_pcba_actia?: string
+          ref_pcba_somfy?: string
+          sfc?: string
+          status?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      test_passages: {
+        Row: {
+          details: string | null
+          id: string
+          nc_code: string | null
+          product_id: string
+          station: string
+          station_number: number | null
+          status: number
+          test_date: string | null
+          test_duration: unknown | null
+        }
+        Insert: {
+          details?: string | null
+          id?: string
+          nc_code?: string | null
+          product_id: string
+          station: string
+          station_number?: number | null
+          status: number
+          test_date?: string | null
+          test_duration?: unknown | null
+        }
+        Update: {
+          details?: string | null
+          id?: string
+          nc_code?: string | null
+          product_id?: string
+          station?: string
+          station_number?: number | null
+          status?: number
+          test_date?: string | null
+          test_duration?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_passages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "product_status_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_passages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trace_view: {
         Row: {
           int4: string | null
@@ -26,7 +125,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      product_status_view: {
+        Row: {
+          cle_io: string | null
+          code_2d: string | null
+          failed_station: string | null
+          failed_station_number: number | null
+          failure_date: string | null
+          id: string | null
+          nbre_passage: number | null
+          nc_code: string | null
+          num_ligne: string | null
+          num_po: string | null
+          position: number | null
+          ref_pcba_actia: string | null
+          ref_pcba_somfy: string | null
+          sfc: string | null
+          status: number | null
+        }
+        Insert: {
+          cle_io?: string | null
+          code_2d?: string | null
+          failed_station?: never
+          failed_station_number?: never
+          failure_date?: never
+          id?: string | null
+          nbre_passage?: never
+          nc_code?: never
+          num_ligne?: string | null
+          num_po?: string | null
+          position?: number | null
+          ref_pcba_actia?: string | null
+          ref_pcba_somfy?: string | null
+          sfc?: string | null
+          status?: number | null
+        }
+        Update: {
+          cle_io?: string | null
+          code_2d?: string | null
+          failed_station?: never
+          failed_station_number?: never
+          failure_date?: never
+          id?: string | null
+          nbre_passage?: never
+          nc_code?: never
+          num_ligne?: string | null
+          num_po?: string | null
+          position?: number | null
+          ref_pcba_actia?: string | null
+          ref_pcba_somfy?: string | null
+          sfc?: string | null
+          status?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

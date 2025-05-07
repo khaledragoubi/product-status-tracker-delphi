@@ -1,25 +1,36 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Toaster } from '@/components/ui/toaster';
 import { toast } from '@/components/ui/sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Separator } from '@/components/ui/separator';
 import ProductScanner from '@/components/ProductScanner';
-import StatusDisplay from '@/components/StatusDisplay';
-import ProductHistory from '@/components/ProductHistory';
 import LoginForm from '@/components/LoginForm';
 import { Product } from '@/types/product';
-import { findProductByBarcode, mockProducts } from '@/data/mockData';
+import { findProductByBarcode, getRecentProducts } from '@/services/productService';
+import { useQuery } from '@tanstack/react-query';
 
 const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [scanHistory, setScanHistory] = useState<Product[]>([]);
   const [user, setUser] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
   
-  // Check if user is already logged in from localStorage
+  // Récupérer les produits récents au chargement de la page
+  const { data: recentProducts, isLoading, error } = useQuery({
+    queryKey: ['recentProducts'],
+    queryFn: () => getRecentProducts(5),
+  });
+
+  // Mettre à jour l'historique de scan au chargement des produits récents
+  useEffect(() => {
+    if (recentProducts && recentProducts.length > 0) {
+      setScanHistory(recentProducts);
+    }
+  }, [recentProducts]);
+  
+  // Vérifier si l'utilisateur est déjà connecté depuis localStorage
   useEffect(() => {
     const savedUser = localStorage.getItem('delphiUser');
     if (savedUser) {
@@ -27,28 +38,36 @@ const Index = () => {
     }
   }, []);
   
-  const handleScan = (barcode: string) => {
-    // Find the product by barcode
-    const product = findProductByBarcode(barcode);
-    
-    if (product) {
-      setCurrentProduct(product);
+  const handleScan = async (barcode: string) => {
+    setIsScanning(true);
+    try {
+      // Rechercher le produit par code-barres dans la base de données
+      const product = await findProductByBarcode(barcode);
       
-      // Add to scan history if not already present
-      if (!scanHistory.some(p => p.id === product.id)) {
-        setScanHistory(prev => [product, ...prev].slice(0, 5));
-      }
-      
-      // Show appropriate notification
-      if (product.currentStatus === 'PASS') {
-        toast.success(`Produit ${product.barcode} : PASS`);
-      } else if (product.currentStatus === 'FAIL') {
-        toast.error(`Produit ${product.barcode} : FAIL`);
+      if (product) {
+        setCurrentProduct(product);
+        
+        // Ajouter à l'historique de scan s'il n'y est pas déjà
+        if (!scanHistory.some(p => p.id === product.id)) {
+          setScanHistory(prev => [product, ...prev].slice(0, 5));
+        }
+        
+        // Afficher une notification appropriée
+        if (product.currentStatus === 'PASS') {
+          toast.success(`Produit ${product.barcode} : PASS`);
+        } else if (product.currentStatus === 'FAIL') {
+          toast.error(`Produit ${product.barcode} : FAIL`);
+        } else {
+          toast.warning(`Produit ${product.barcode} : En cours de test`);
+        }
       } else {
-        toast.warning(`Produit ${product.barcode} : En cours de test`);
+        toast.error(`Aucun produit trouvé avec le code barre ${barcode}`);
       }
-    } else {
-      toast.error(`Aucun produit trouvé avec le code barre ${barcode}`);
+    } catch (error) {
+      console.error('Error scanning product:', error);
+      toast.error('Erreur lors du scan du produit');
+    } finally {
+      setIsScanning(false);
     }
   };
 
@@ -67,7 +86,7 @@ const Index = () => {
     toast.info('Vous avez été déconnecté');
   };
 
-  // If user is not logged in, show login form
+  // Si l'utilisateur n'est pas connecté, afficher le formulaire de connexion
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -144,11 +163,11 @@ const Index = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Date de passage</label>
-                <Input readOnly value={currentProduct ? new Date().toLocaleDateString('fr-FR') : ''} className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.tests[0]?.timestamp ? new Date(currentProduct.tests[0].timestamp).toLocaleDateString('fr-FR') : ''} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Takt time total</label>
-                <Input readOnly value="00:05:23" className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.tests[0]?.timestamp ? '00:05:23' : ''} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Code 2d produit</label>
@@ -180,7 +199,7 @@ const Index = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Date Fail</label>
-                  <Input readOnly value={currentProduct?.failureDate || ''} className="bg-gray-50" />
+                  <Input readOnly value={currentProduct?.failureDate ? new Date(currentProduct.failureDate).toLocaleString('fr-FR') : ''} className="bg-gray-50" />
                 </div>
               </div>
               <div className="mt-4">
@@ -239,7 +258,19 @@ const Index = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {scanHistory.map((product) => (
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-4">Chargement...</TableCell>
+                  </TableRow>
+                ) : error ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-4 text-destructive">Erreur de chargement des données</TableCell>
+                  </TableRow>
+                ) : scanHistory.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-4">Aucun produit scanné</TableCell>
+                  </TableRow>
+                ) : scanHistory.map((product) => (
                   <TableRow key={product.id} onClick={() => selectProductFromHistory(product)} className="cursor-pointer">
                     <TableCell>{product.barcode}</TableCell>
                     <TableCell>{product.model}</TableCell>
@@ -258,39 +289,10 @@ const Index = () => {
                     <TableCell>{product.failedStation || 'N/A'}</TableCell>
                   </TableRow>
                 ))}
-                {scanHistory.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">Aucun produit scanné</TableCell>
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </CardContent>
         </Card>
-        
-        {/* Anciens composants conservés pour références mais masqués */}
-        <div className="hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <StatusDisplay product={currentProduct} />
-            </div>
-            <div>
-              <ProductHistory scanHistory={scanHistory} onSelectProduct={selectProductFromHistory} />
-            </div>
-          </div>
-        </div>
-
-        {/* Helper text for demo */}
-        <div className="mt-8 p-4 bg-secondary/50 rounded-md border border-primary/20">
-          <h3 className="font-medium mb-2">Codes pour la démo :</h3>
-          <p className="text-sm text-muted-foreground mb-2">Utilisez ces codes pour tester différents statuts :</p>
-          <ul className="space-y-1 text-sm list-disc list-inside">
-            <li>PDT001 - Produit PASS</li>
-            <li>PDT002 - Produit FAIL (Testeur RF)</li>
-            <li>PDT003 - Produit FAIL (Vision 2)</li>
-            <li>PDT005 - Produit FAIL (Testeur Bouton)</li>
-          </ul>
-        </div>
       </main>
       
       <footer className="bg-secondary py-3 border-t">

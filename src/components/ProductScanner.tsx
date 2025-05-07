@@ -6,7 +6,7 @@ import { toast } from '@/components/ui/sonner';
 import { Search } from 'lucide-react';
 
 interface ProductScannerProps {
-  onScan: (barcode: string) => void;
+  onScan: (barcode: string) => Promise<void>;
 }
 
 const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
@@ -22,13 +22,13 @@ const ProductScanner: React.FC<ProductScannerProps> = ({ onScan }) => {
     
     setIsScanning(true);
     try {
-      onScan(barcode.trim());
+      await onScan(barcode.trim());
+      setBarcode('');
     } catch (error) {
       console.error('Error scanning product:', error);
       toast.error('Erreur lors du scan du produit');
     } finally {
       setIsScanning(false);
-      setBarcode('');
     }
   };
 
