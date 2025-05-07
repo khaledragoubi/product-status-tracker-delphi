@@ -1,3 +1,4 @@
+
 export type TestStation = 
   | 'BLT' 
   | 'RF' 
@@ -9,11 +10,10 @@ export type ProductStatus = 'PASS' | 'FAIL' | 'IN_PROGRESS';
 
 // Mapping numeric status to our application status
 export const mapDbStatusToAppStatus = (status: number): ProductStatus => {
-  // Assuming 0 is PASS, 1 is FAIL, other values are IN_PROGRESS
-  // Adjust mapping according to your actual database values
+  // Assuming 0 is FAIL, 1 is PASS, other values are IN_PROGRESS
   switch(status) {
-    case 0: return 'PASS';
-    case 1: return 'FAIL';
+    case 1: return 'PASS';
+    case 0: return 'FAIL';
     default: return 'IN_PROGRESS';
   }
 };
@@ -25,12 +25,14 @@ export interface ProductTest {
   details?: string;
 }
 
+// Structure de la table trace_view
 export interface DbProduct {
+  id: string;
   num: number;
   sfc: string;
-  product_key: string;
-  adress_io: string;
-  code_2d: string;
+  product_key?: string;
+  adress_io?: string;
+  code_2d?: string;
   num_poste_blt?: number;
   status_blt_sfc?: number;
   blt_date_heure?: string;
@@ -60,6 +62,7 @@ export interface DbProduct {
   hw_version?: string;
   calibration_data?: string;
   param_test?: string;
+  created_at?: string;
 }
 
 export interface Product {
@@ -73,7 +76,7 @@ export interface Product {
   failureDate?: string;
 }
 
-// Function to transform database product to our app's product model
+// Fonction pour transformer les données de trace_view en notre modèle d'application
 export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   const tests: ProductTest[] = [];
   let failedStation: TestStation | undefined;
@@ -159,14 +162,14 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
     }
   }
   
-  // Sort tests by timestamp
+  // Sort tests by timestamp (newer first)
   tests.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   
   // Determine current status based on overall status or latest test
   let currentStatus = mapDbStatusToAppStatus(dbProduct.status);
   
   return {
-    id: dbProduct.num.toString(),
+    id: dbProduct.id || dbProduct.num?.toString() || '',
     barcode: dbProduct.code_2d || '',
     serialNumber: dbProduct.sfc || '',
     model: dbProduct.ref_pcba_somfy || dbProduct.ref_pcba_actia || '',
