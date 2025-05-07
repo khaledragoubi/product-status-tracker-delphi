@@ -121,7 +121,7 @@ export const getRecentProducts = async (limit = 5): Promise<Product[]> => {
     const { data, error } = await supabase
       .from('product_status_view')
       .select('*')
-      .order('failure_date', { ascending: false, nullsLast: true })
+      .order('failure_date', { ascending: false })
       .limit(limit);
 
     if (error) {
@@ -137,5 +137,39 @@ export const getRecentProducts = async (limit = 5): Promise<Product[]> => {
   } catch (error) {
     console.error('Error in getRecentProducts:', error);
     return [];
+  }
+};
+
+/**
+ * Supprime tous les passages de tests et produits
+ */
+export const clearAllLogs = async (): Promise<boolean> => {
+  try {
+    // Supprimer tous les passages de tests
+    const { error: testPassagesError } = await supabase
+      .from('test_passages')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Condition pour supprimer tous les enregistrements
+
+    if (testPassagesError) {
+      console.error('Error clearing test passages:', testPassagesError);
+      return false;
+    }
+
+    // Supprimer tous les produits
+    const { error: productsError } = await supabase
+      .from('products')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Condition pour supprimer tous les enregistrements
+
+    if (productsError) {
+      console.error('Error clearing products:', productsError);
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error in clearAllLogs:', error);
+    return false;
   }
 };

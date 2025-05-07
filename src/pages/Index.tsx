@@ -8,17 +8,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import ProductScanner from '@/components/ProductScanner';
 import LoginForm from '@/components/LoginForm';
 import { Product } from '@/types/product';
-import { findProductByBarcode, getRecentProducts } from '@/services/productService';
+import { findProductByBarcode, getRecentProducts, clearAllLogs } from '@/services/productService';
 import { useQuery } from '@tanstack/react-query';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Trash2 } from 'lucide-react';
 
 const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [scanHistory, setScanHistory] = useState<Product[]>([]);
   const [user, setUser] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   
   // Récupérer les produits récents au chargement de la page
-  const { data: recentProducts, isLoading, error } = useQuery({
+  const { data: recentProducts, isLoading, error, refetch } = useQuery({
     queryKey: ['recentProducts'],
     queryFn: () => getRecentProducts(5),
   });
@@ -84,6 +87,27 @@ const Index = () => {
     setUser(null);
     localStorage.removeItem('delphiUser');
     toast.info('Vous avez été déconnecté');
+  };
+
+  const handleClearAllLogs = async () => {
+    setIsClearing(true);
+    try {
+      const success = await clearAllLogs();
+      
+      if (success) {
+        toast.success('Tous les logs ont été supprimés avec succès');
+        setCurrentProduct(null);
+        setScanHistory([]);
+        refetch(); // Rafraîchir les données
+      } else {
+        toast.error('Erreur lors de la suppression des logs');
+      }
+    } catch (error) {
+      console.error('Error clearing logs:', error);
+      toast.error('Erreur lors de la suppression des logs');
+    } finally {
+      setIsClearing(false);
+    }
   };
 
   // Si l'utilisateur n'est pas connecté, afficher le formulaire de connexion
@@ -230,12 +254,30 @@ const Index = () => {
                   </svg>
                   Enregistrement des logs
                 </Button>
-                <Button variant="destructive" className="flex items-center gap-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" fill="currentColor"/>
-                  </svg>
-                  Supprimer et vider les logs
-                </Button>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive" className="flex items-center gap-1" disabled={isClearing}>
+                      <Trash2 className="size-4" />
+                      {isClearing ? 'Suppression...' : 'Supprimer et vider les logs'}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Êtes-vous sûr de vouloir supprimer tous les logs ?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Cette action va supprimer définitivement tous les logs et l'historique des produits. 
+                        Cette action est irréversible.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Annuler</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleClearAllLogs} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Supprimer
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </CardContent>
           </Card>
