@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
@@ -153,6 +154,13 @@ const Index = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <header className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/lovable-uploads/52a12bc6-eba5-4826-8c18-1d971f9e1b2d.png" 
+                alt="Logo ACTIA" 
+                className="h-16" 
+              />
+            </div>
             <h1 className="text-2xl font-bold text-primary">SAV AMY IO Nc log</h1>
             <p className="text-sm opacity-90">Système de Suivi des Produits</p>
           </header>
@@ -168,7 +176,12 @@ const Index = () => {
       <header className="bg-primary text-primary-foreground shadow-md">
         <div className="container mx-auto px-4 py-2">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex items-center gap-3">
+              <img 
+                src="/lovable-uploads/52a12bc6-eba5-4826-8c18-1d971f9e1b2d.png" 
+                alt="Logo ACTIA" 
+                className="h-10" 
+              />
               <h1 className="text-2xl font-bold">SAV AMY IO Nc log</h1>
             </div>
             <div className="flex items-center gap-4">
@@ -379,7 +392,14 @@ const Index = () => {
       
       <footer className="bg-secondary py-3 border-t">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          SAV AMY IO Nc log - Système de Suivi des Produits © 2025
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <img 
+              src="/lovable-uploads/52a12bc6-eba5-4826-8c18-1d971f9e1b2d.png" 
+              alt="Logo ACTIA" 
+              className="h-6" 
+            />
+            <span>SAV AMY IO Nc log - Système de Suivi des Produits © 2025</span>
+          </div>
         </div>
       </footer>
     </div>
