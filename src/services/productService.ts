@@ -31,6 +31,38 @@ export const findProductByBarcode = async (barcode: string): Promise<Product | n
 };
 
 /**
+ * Recherche le produit le plus récent par code-barres ou SFC dans la table trace_view
+ */
+export const findLatestProductByBarcodeOrSfc = async (searchValue: string): Promise<Product | null> => {
+  try {
+    // Essaie de rechercher par code_2d d'abord
+    let query = supabase
+      .from('trace_view')
+      .select('*')
+      .or(`code_2d.eq.${searchValue},sfc.eq.${searchValue}`)
+      .order('num', { ascending: false })
+      .limit(1);
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Error fetching latest product:', error);
+      return null;
+    }
+
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    // Mapper le produit de la base de données vers notre modèle d'application
+    return mapDbProductToAppProduct(data[0] as DbProduct);
+  } catch (error) {
+    console.error('Error in findLatestProductByBarcodeOrSfc:', error);
+    return null;
+  }
+};
+
+/**
  * Récupère les derniers produits (limité à un certain nombre)
  */
 export const getRecentProducts = async (limit = 5): Promise<Product[]> => {
@@ -39,7 +71,7 @@ export const getRecentProducts = async (limit = 5): Promise<Product[]> => {
     const { data, error } = await supabase
       .from('trace_view')
       .select('*')
-      .order('blt_date_heure', { ascending: false })
+      .order('num', { ascending: false })
       .limit(limit);
 
     if (error) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
@@ -8,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import ProductScanner from '@/components/ProductScanner';
 import LoginForm from '@/components/LoginForm';
 import { Product } from '@/types/product';
-import { findProductByBarcode, getRecentProducts, clearAllLogs, exportProductsToCSV } from '@/services/productService';
+import { findProductByBarcode, getRecentProducts, clearAllLogs, exportProductsToCSV, findLatestProductByBarcodeOrSfc } from '@/services/productService';
 import { useQuery } from '@tanstack/react-query';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Trash2, Download } from 'lucide-react';
@@ -45,8 +44,8 @@ const Index = () => {
   const handleScan = async (barcode: string) => {
     setIsScanning(true);
     try {
-      // Rechercher le produit par code-barres dans la base de données
-      const product = await findProductByBarcode(barcode);
+      // Rechercher le produit par code-barres ou SFC dans la base de données
+      const product = await findLatestProductByBarcodeOrSfc(barcode);
       
       if (product) {
         setCurrentProduct(product);
@@ -58,14 +57,14 @@ const Index = () => {
         
         // Afficher une notification appropriée
         if (product.currentStatus === 'PASS') {
-          toast.success(`Produit ${product.barcode} : PASS`);
+          toast.success(`Produit ${barcode} : PASS`);
         } else if (product.currentStatus === 'FAIL') {
-          toast.error(`Produit ${product.barcode} : FAIL`);
+          toast.error(`Produit ${barcode} : FAIL`);
         } else {
-          toast.warning(`Produit ${product.barcode} : En cours de test`);
+          toast.warning(`Produit ${barcode} : En cours de test`);
         }
       } else {
-        toast.error(`Aucun produit trouvé avec le code barre ${barcode}`);
+        toast.error(`Aucun produit trouvé avec l'identifiant ${barcode}`);
       }
     } catch (error) {
       console.error('Error scanning product:', error);
@@ -199,7 +198,7 @@ const Index = () => {
       <main className="container mx-auto px-4 py-4">
         <Card className="border mb-4">
           <CardContent className="p-4">
-            <h2 className="text-xl font-medium mb-2">Saisir manuellement ou Scanner le code barre du produit</h2>
+            <h2 className="text-xl font-medium mb-2">Saisir manuellement ou Scanner le code barre ou SFC du produit</h2>
             <ProductScanner onScan={handleScan} />
           </CardContent>
         </Card>
@@ -209,7 +208,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Référence produit Actia</label>
-                <Input readOnly value={currentProduct?.barcode || ''} className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.configLine || ''} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Référence produit Somfy</label>
@@ -217,11 +216,11 @@ const Index = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Pos produit</label>
-                <Input readOnly value={currentProduct?.id || ''} className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.position?.toString() || ''} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Num Po</label>
-                <Input readOnly value={currentProduct?.serialNumber.slice(0, 4) || ''} className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.portOutil?.toString() || ''} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Num Ligne</label>
@@ -249,11 +248,11 @@ const Index = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">CLE IO</label>
-                <Input readOnly value="A349B7" className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.addressIo || ''} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">SFC CIE</label>
-                <Input readOnly value="D78F10" className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.serialNumber || ''} className="bg-gray-50" />
               </div>
             </div>
           </CardContent>

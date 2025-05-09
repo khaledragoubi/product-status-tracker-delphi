@@ -72,6 +72,11 @@ export interface Product {
   currentStatus: ProductStatus;
   failedStation?: TestStation;
   failureDate?: string;
+  // Added fields based on new mapping
+  configLine?: string;      // maps to config_ligne
+  portOutil?: number;       // maps to num_porte_outil
+  position?: number;        // maps to position
+  addressIo?: string;       // maps to adress_io
 }
 
 // Fonction pour transformer les données de trace_view en notre modèle d'application
@@ -173,7 +178,12 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
     id,
     barcode: dbProduct.code_2d || '',
     serialNumber: dbProduct.sfc || '',
-    model: dbProduct.ref_pcba_somfy || dbProduct.ref_pcba_actia || '',
+    // Updated mapping based on new requirements
+    model: dbProduct.ref_pcba_actia || '',  // Changed to ref_pcba_actia as per request
+    configLine: dbProduct.config_ligne || '',
+    portOutil: dbProduct.num_porte_outil || undefined,
+    position: dbProduct.position || undefined,
+    addressIo: dbProduct.adress_io || '',
     tests,
     currentStatus,
     failedStation,
