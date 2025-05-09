@@ -81,16 +81,20 @@ export const clearAllLogs = async (): Promise<boolean> => {
 };
 
 /**
- * Exporte les produits au format CSV 
+ * Exporte les produits spécifiés au format CSV 
  */
-export const exportProductsToCSV = async (limit = 100): Promise<string> => {
+export const exportProductsToCSV = async (products: Product[]): Promise<string> => {
   try {
-    // Récupère les produits limités à 'limit'
+    if (!products || products.length === 0) {
+      return 'Aucune donnée à exporter';
+    }
+
+    // Récupérer les données complètes des produits spécifiés
+    const barcodes = products.map(p => p.barcode).filter(b => b);
     const { data, error } = await supabase
       .from('trace_view')
       .select('*')
-      .order('blt_date_heure', { ascending: false })
-      .limit(limit);
+      .in('code_2d', barcodes);
 
     if (error) {
       console.error('Error fetching products for export:', error);

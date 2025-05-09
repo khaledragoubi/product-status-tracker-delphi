@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/components/ui/sonner';
@@ -115,7 +114,12 @@ const Index = () => {
   const handleExportLogs = async () => {
     setIsExporting(true);
     try {
-      const csvContent = await exportProductsToCSV(100); // Exporter jusqu'à 100 produits
+      if (scanHistory.length === 0) {
+        toast.warning('Aucun produit à exporter dans l\'historique');
+        return;
+      }
+      
+      const csvContent = await exportProductsToCSV(scanHistory);
       
       // Créer un blob avec le contenu CSV
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -126,7 +130,7 @@ const Index = () => {
       const date = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
       
       link.setAttribute('href', url);
-      link.setAttribute('download', `logs-produits-${date}.csv`);
+      link.setAttribute('download', `historique-produits-${date}.csv`);
       link.style.visibility = 'hidden';
       
       // Ajouter à la page, cliquer et supprimer
@@ -134,10 +138,10 @@ const Index = () => {
       link.click();
       document.body.removeChild(link);
       
-      toast.success('Logs exportés avec succès');
+      toast.success('Historique des produits exporté avec succès');
     } catch (error) {
       console.error('Error exporting logs:', error);
-      toast.error('Erreur lors de l\'exportation des logs');
+      toast.error('Erreur lors de l\'exportation de l\'historique');
     } finally {
       setIsExporting(false);
     }
