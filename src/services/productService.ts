@@ -1,7 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { Product, TestStation, ProductStatus, mapDbStatusToAppStatus } from '@/types/product';
-import { DbProduct } from '@/types/product';
+import { Product, TestStation, ProductStatus, mapDbStatusToAppStatus, mapDbProductToAppProduct, DbProduct } from '@/types/product';
 
 /**
  * Recherche un produit par code-barres dans la table trace_view
@@ -67,7 +66,7 @@ export const clearAllLogs = async (): Promise<boolean> => {
     const { error } = await supabase
       .from('trace_view')
       .delete()
-      .neq('id', '00000000-0000-0000-0000-000000000000'); // Condition pour supprimer tous les enregistrements
+      .not('num', 'is', null); // Condition pour supprimer tous les enregistrements
 
     if (error) {
       console.error('Error clearing trace_view logs:', error);

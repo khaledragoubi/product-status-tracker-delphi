@@ -9,7 +9,7 @@ export type TestStation =
 export type ProductStatus = 'PASS' | 'FAIL' | 'IN_PROGRESS';
 
 // Mapping numeric status to our application status
-export const mapDbStatusToAppStatus = (status: number): ProductStatus => {
+export const mapDbStatusToAppStatus = (status: number | null): ProductStatus => {
   // Assuming 0 is FAIL, 1 is PASS, other values are IN_PROGRESS
   switch(status) {
     case 1: return 'PASS';
@@ -25,51 +25,49 @@ export interface ProductTest {
   details?: string;
 }
 
-// Structure de la table trace_view
+// Structure de la table trace_view comme définie par l'utilisateur
 export interface DbProduct {
-  id: string;
-  num: number;
-  sfc: string;
-  product_key?: string;
-  adress_io?: string;
-  code_2d?: string;
-  num_poste_blt?: number;
-  status_blt_sfc?: number;
-  blt_date_heure?: string;
-  nc_log_bl?: string;
-  num_poste_rf?: number;
-  status_rf_sfc?: number;
-  rf_date_heure?: string;
-  nc_log_rf?: string;
-  status_vision_sfc?: number;
-  vision_date_heure?: string;
-  nc_log_vision?: string;
-  num_poste_uft?: number;
-  status_uft_sfc?: number;
-  uft_date_heure?: string;
-  nc_log_uft?: string;
-  num_poste_rf_slider?: number;
-  status_rf_slider_sfc?: number;
-  rf_slider_date_heure?: string;
-  nc_log_rf_slide?: string;
-  status: number;
-  position: number;
-  num_porte_outil?: number;
-  config_ligne?: string;
-  ref_pcba_actia?: string;
-  ref_pcba_somfy?: string;
-  sw_produit?: string;
-  hw_version?: string;
-  calibration_data?: string;
-  param_test?: string;
-  created_at?: string;
+  num: number | null;
+  sfc: string | null;
+  product_key: string | null;
+  adress_io: string | null;
+  code_2d: string | null;
+  num_poste_blt: number | null;
+  status_blt_sfc: number | null;
+  blt_date_heure: string | null;
+  nc_log_bl: string | null;
+  num_poste_rf: number | null;
+  status_rf_sfc: number | null;
+  rf_date_heure: string | null;
+  nc_log_rf: string | null;
+  status_vision_sfc: number | null;
+  vision_date_heure: string | null;
+  nc_log_vision: string | null;
+  num_poste_uft: number | null;
+  status_uft_sfc: number | null;
+  uft_date_heure: string | null;
+  nc_log_uft: string | null;
+  num_poste_rf_slider: number | null;
+  status_rf_slider_sfc: number | null;
+  rf_slider_date_heure: string | null;
+  nc_log_rf_slide: string | null;
+  status: number | null;
+  position: number | null;
+  num_porte_outil: number | null;
+  config_ligne: string | null;
+  ref_pcba_actia: string | null;
+  ref_pcba_somfy: string | null;
+  sw_produit: string | null;
+  hw_version: string | null;
+  calibration_data: string | null;
+  param_test: string | null;
 }
 
 export interface Product {
   id: string;
   barcode: string;          // maps to code_2d
   serialNumber: string;     // maps to sfc
-  model: string;           // maps to ref_pcba_somfy
+  model: string;            // maps to ref_pcba_somfy
   tests: ProductTest[];
   currentStatus: ProductStatus;
   failedStation?: TestStation;
@@ -83,13 +81,13 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   let failureDate: string | undefined;
   
   // Process BLT test
-  if (dbProduct.status_blt_sfc !== undefined && dbProduct.blt_date_heure) {
+  if (dbProduct.status_blt_sfc !== null && dbProduct.blt_date_heure) {
     const status = mapDbStatusToAppStatus(dbProduct.status_blt_sfc);
     tests.push({
       station: 'BLT',
       status,
       timestamp: dbProduct.blt_date_heure,
-      details: dbProduct.nc_log_bl
+      details: dbProduct.nc_log_bl || undefined
     });
     
     if (status === 'FAIL' && !failedStation) {
@@ -99,13 +97,13 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   }
   
   // Process RF test
-  if (dbProduct.status_rf_sfc !== undefined && dbProduct.rf_date_heure) {
+  if (dbProduct.status_rf_sfc !== null && dbProduct.rf_date_heure) {
     const status = mapDbStatusToAppStatus(dbProduct.status_rf_sfc);
     tests.push({
       station: 'RF',
       status,
       timestamp: dbProduct.rf_date_heure,
-      details: dbProduct.nc_log_rf
+      details: dbProduct.nc_log_rf || undefined
     });
     
     if (status === 'FAIL' && !failedStation) {
@@ -115,13 +113,13 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   }
   
   // Process VISION test
-  if (dbProduct.status_vision_sfc !== undefined && dbProduct.vision_date_heure) {
+  if (dbProduct.status_vision_sfc !== null && dbProduct.vision_date_heure) {
     const status = mapDbStatusToAppStatus(dbProduct.status_vision_sfc);
     tests.push({
       station: 'VISION',
       status,
       timestamp: dbProduct.vision_date_heure,
-      details: dbProduct.nc_log_vision
+      details: dbProduct.nc_log_vision || undefined
     });
     
     if (status === 'FAIL' && !failedStation) {
@@ -131,13 +129,13 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   }
   
   // Process UFT test
-  if (dbProduct.status_uft_sfc !== undefined && dbProduct.uft_date_heure) {
+  if (dbProduct.status_uft_sfc !== null && dbProduct.uft_date_heure) {
     const status = mapDbStatusToAppStatus(dbProduct.status_uft_sfc);
     tests.push({
       station: 'UFT',
       status,
       timestamp: dbProduct.uft_date_heure,
-      details: dbProduct.nc_log_uft
+      details: dbProduct.nc_log_uft || undefined
     });
     
     if (status === 'FAIL' && !failedStation) {
@@ -147,13 +145,13 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   }
   
   // Process RF SLIDER test
-  if (dbProduct.status_rf_slider_sfc !== undefined && dbProduct.rf_slider_date_heure) {
+  if (dbProduct.status_rf_slider_sfc !== null && dbProduct.rf_slider_date_heure) {
     const status = mapDbStatusToAppStatus(dbProduct.status_rf_slider_sfc);
     tests.push({
       station: 'RF_SLIDER',
       status,
       timestamp: dbProduct.rf_slider_date_heure,
-      details: dbProduct.nc_log_rf_slide
+      details: dbProduct.nc_log_rf_slide || undefined
     });
     
     if (status === 'FAIL' && !failedStation) {
@@ -166,10 +164,13 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
   tests.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   
   // Determine current status based on overall status or latest test
-  let currentStatus = mapDbStatusToAppStatus(dbProduct.status);
+  const currentStatus = mapDbStatusToAppStatus(dbProduct.status);
+  
+  // Generate a unique ID using num, position or a random string as fallback
+  const id = dbProduct.num?.toString() || dbProduct.position?.toString() || Math.random().toString(36).substring(7);
   
   return {
-    id: dbProduct.id || dbProduct.num?.toString() || '',
+    id,
     barcode: dbProduct.code_2d || '',
     serialNumber: dbProduct.sfc || '',
     model: dbProduct.ref_pcba_somfy || dbProduct.ref_pcba_actia || '',
