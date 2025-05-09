@@ -8,10 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import ProductScanner from '@/components/ProductScanner';
 import LoginForm from '@/components/LoginForm';
 import { Product } from '@/types/product';
-import { findProductByBarcode, getRecentProducts, clearAllLogs } from '@/services/productService';
+import { findProductByBarcode, getRecentProducts, clearAllLogs, exportProductsToCSV } from '@/services/productService';
 import { useQuery } from '@tanstack/react-query';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Trash2 } from 'lucide-react';
+import { Trash2, Download } from 'lucide-react';
 
 const Index = () => {
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
@@ -19,6 +19,7 @@ const Index = () => {
   const [user, setUser] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   
   // Récupérer les produits récents au chargement de la page
   const { data: recentProducts, isLoading, error, refetch } = useQuery({
@@ -107,6 +108,38 @@ const Index = () => {
       toast.error('Erreur lors de la suppression des logs');
     } finally {
       setIsClearing(false);
+    }
+  };
+
+  // Nouvelle fonction pour gérer l'exportation CSV
+  const handleExportLogs = async () => {
+    setIsExporting(true);
+    try {
+      const csvContent = await exportProductsToCSV(100); // Exporter jusqu'à 100 produits
+      
+      // Créer un blob avec le contenu CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      // Créer un lien de téléchargement
+      const link = document.createElement('a');
+      const date = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `logs-produits-${date}.csv`);
+      link.style.visibility = 'hidden';
+      
+      // Ajouter à la page, cliquer et supprimer
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Logs exportés avec succès');
+    } catch (error) {
+      console.error('Error exporting logs:', error);
+      toast.error('Erreur lors de l\'exportation des logs');
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -248,11 +281,14 @@ const Index = () => {
                 )}
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="flex items-center gap-1">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 12v7H5v-7H3v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z" fill="currentColor"/>
-                  </svg>
-                  Enregistrement des logs
+                <Button 
+                  variant="outline" 
+                  className="flex items-center gap-1"
+                  onClick={handleExportLogs}
+                  disabled={isExporting}
+                >
+                  <Download className="size-4" />
+                  {isExporting ? 'Exportation...' : 'Enregistrement des logs'}
                 </Button>
                 
                 <AlertDialog>

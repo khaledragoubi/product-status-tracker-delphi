@@ -79,3 +79,52 @@ export const clearAllLogs = async (): Promise<boolean> => {
     return false;
   }
 };
+
+/**
+ * Exporte les produits au format CSV 
+ */
+export const exportProductsToCSV = async (limit = 100): Promise<string> => {
+  try {
+    // Récupère les produits limités à 'limit'
+    const { data, error } = await supabase
+      .from('trace_view')
+      .select('*')
+      .order('blt_date_heure', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Error fetching products for export:', error);
+      throw new Error('Erreur lors de la récupération des données pour l\'export');
+    }
+
+    if (!data || data.length === 0) {
+      return 'Aucune donnée à exporter';
+    }
+
+    // Crée l'en-tête CSV avec toutes les colonnes
+    const headers = Object.keys(data[0]).join(';');
+    
+    // Convertit les données en lignes CSV
+    const csvRows = data.map(product => {
+      return Object.values(product)
+        .map(value => {
+          // Formater les valeurs pour le CSV
+          if (value === null || value === undefined) return '';
+          // Échapper les guillemets et entourer la valeur de guillemets si elle contient des caractères spéciaux
+          if (typeof value === 'string') {
+            return `"${value.replace(/"/g, '""')}"`;
+          }
+          return value;
+        })
+        .join(';');
+    });
+
+    // Combine l'en-tête et les lignes
+    const csvContent = [headers, ...csvRows].join('\n');
+    
+    return csvContent;
+  } catch (error) {
+    console.error('Error in exportProductsToCSV:', error);
+    throw error;
+  }
+};
