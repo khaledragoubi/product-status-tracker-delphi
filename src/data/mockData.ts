@@ -1,3 +1,4 @@
+
 import { Product, TestStation, ProductStatus } from '../types/product';
 
 // Helper function to create dates in the past few hours
@@ -14,6 +15,7 @@ export const mockProducts: Product[] = [
     serialNumber: 'SN00123456',
     model: 'XC-200',
     currentStatus: 'PASS',
+    passageCount: 5,
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(5) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(4.5) },
@@ -30,6 +32,7 @@ export const mockProducts: Product[] = [
     currentStatus: 'FAIL',
     failedStation: 'RF',
     failureDate: getRecentDate(3),
+    passageCount: 2,
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(4) },
       { station: 'RF', status: 'FAIL', timestamp: getRecentDate(3), details: 'Signal strength below threshold' },
@@ -43,6 +46,7 @@ export const mockProducts: Product[] = [
     currentStatus: 'FAIL',
     failedStation: 'VISION',
     failureDate: getRecentDate(2),
+    passageCount: 3,
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(5) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(4.5) },
@@ -55,6 +59,7 @@ export const mockProducts: Product[] = [
     serialNumber: 'SN00123459',
     model: 'XC-300',
     currentStatus: 'PASS',
+    passageCount: 5,
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(6) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(5.5) },
@@ -71,6 +76,7 @@ export const mockProducts: Product[] = [
     currentStatus: 'FAIL',
     failedStation: 'UFT',
     failureDate: getRecentDate(1),
+    passageCount: 4,
     tests: [
       { station: 'BLT', status: 'PASS', timestamp: getRecentDate(4) },
       { station: 'RF', status: 'PASS', timestamp: getRecentDate(3.5) },
