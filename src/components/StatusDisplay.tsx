@@ -57,12 +57,12 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
       <CardContent className="pt-6">
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
-            <p className="text-sm text-muted-foreground">Code Barre</p>
-            <p className="font-medium">{product.barcode}</p>
+            <p className="text-sm text-muted-foreground">Code Barre (code_2d)</p>
+            <p className="font-medium">{product.barcode || "Non disponible"}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Numéro de série</p>
-            <p className="font-medium">{product.serialNumber}</p>
+            <p className="text-sm text-muted-foreground">Numéro SFC</p>
+            <p className="font-medium">{product.serialNumber || "Non disponible"}</p>
           </div>
         </div>
 
@@ -89,6 +89,11 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
         <Separator className="my-4" />
         <div>
           <h3 className="font-semibold mb-3">Historique des tests</h3>
+          <p className="text-xs text-muted-foreground mb-2">
+            {product.currentStatus === 'FAIL' 
+              ? "Tests triés par priorité de station (BLT, RF, VISION, UFT, RF_SLIDER)" 
+              : "Tests triés par date (plus récent d'abord)"}
+          </p>
           <div className="space-y-3">
             {product.tests.map((test, index) => (
               <div key={index} className="flex justify-between items-center p-2 rounded-md bg-secondary/50">
