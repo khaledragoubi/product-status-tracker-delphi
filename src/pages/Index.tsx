@@ -228,7 +228,7 @@ const Index = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Nbre passage</label>
-                <Input readOnly value={currentProduct?.tests.length.toString() || ''} className="bg-gray-50" />
+                <Input readOnly value={currentProduct?.passageCount?.toString() || '0'} className="bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">ID passage</label>

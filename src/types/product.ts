@@ -77,10 +77,11 @@ export interface Product {
   portOutil?: number;       // maps to num_porte_outil
   position?: number;        // maps to position
   addressIo?: string;       // maps to adress_io
+  passageCount: number;     // Number of entries for this product
 }
 
 // Fonction pour transformer les données de trace_view en notre modèle d'application
-export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
+export const mapDbProductToAppProduct = (dbProduct: DbProduct, passageCount = 0): Product => {
   const tests: ProductTest[] = [];
   let failedStation: TestStation | undefined;
   let failureDate: string | undefined;
@@ -178,8 +179,7 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
     id,
     barcode: dbProduct.code_2d || '',
     serialNumber: dbProduct.sfc || '',
-    // Updated mapping based on new requirements
-    model: dbProduct.ref_pcba_actia || '',  // Changed to ref_pcba_actia as per request
+    model: dbProduct.ref_pcba_actia || '',
     configLine: dbProduct.config_ligne || '',
     portOutil: dbProduct.num_porte_outil || undefined,
     position: dbProduct.position || undefined,
@@ -187,6 +187,7 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct): Product => {
     tests,
     currentStatus,
     failedStation,
-    failureDate
+    failureDate,
+    passageCount: passageCount || tests.length || 0 // Use provided count or fall back to tests length
   };
 };

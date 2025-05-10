@@ -54,11 +54,39 @@ export const findLatestProductByBarcodeOrSfc = async (searchValue: string): Prom
       return null;
     }
 
+    // Compter le nombre total de passages pour ce produit
+    const passageCount = await getProductPassageCount(data[0].code_2d || data[0].sfc);
+
     // Mapper le produit de la base de données vers notre modèle d'application
-    return mapDbProductToAppProduct(data[0] as DbProduct);
+    return mapDbProductToAppProduct(data[0] as DbProduct, passageCount);
   } catch (error) {
     console.error('Error in findLatestProductByBarcodeOrSfc:', error);
     return null;
+  }
+};
+
+/**
+ * Compte le nombre total de passages pour un produit donné
+ */
+export const getProductPassageCount = async (identifier: string | null): Promise<number> => {
+  if (!identifier) return 0;
+  
+  try {
+    // Recherche tous les enregistrements pour ce code_2d ou sfc
+    const { data, error, count } = await supabase
+      .from('trace_view')
+      .select('*', { count: 'exact' })
+      .or(`code_2d.eq.${identifier},sfc.eq.${identifier}`);
+
+    if (error) {
+      console.error('Error counting product passages:', error);
+      return 0;
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error('Error in getProductPassageCount:', error);
+    return 0;
   }
 };
 
@@ -80,7 +108,12 @@ export const getRecentProducts = async (limit = 5): Promise<Product[]> => {
     }
 
     // Mapper chaque produit de la base de données vers notre modèle d'application
-    const products = data.map((product) => mapDbProductToAppProduct(product as DbProduct));
+    const products = [];
+    
+    for (const product of data) {
+      const passageCount = await getProductPassageCount(product.code_2d || product.sfc);
+      products.push(mapDbProductToAppProduct(product as DbProduct, passageCount));
+    }
     
     return products;
   } catch (error) {
