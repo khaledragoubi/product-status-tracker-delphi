@@ -18,6 +18,15 @@ export const mapDbStatusToAppStatus = (status: number | null): ProductStatus => 
   }
 };
 
+// Définition de l'ordre de priorité des stations de test pour le tri
+export const TEST_STATION_PRIORITY: Record<TestStation, number> = {
+  'BLT': 1,
+  'RF': 2,
+  'VISION': 3,
+  'UFT': 4,
+  'RF_SLIDER': 5
+};
+
 export interface ProductTest {
   station: TestStation;
   status: ProductStatus;
@@ -166,11 +175,16 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct, passageCount = 0)
     }
   }
   
-  // Sort tests by timestamp (newer first)
-  tests.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  
-  // Determine current status based on overall status or latest test
+  // Détermination du statut global du produit
   const currentStatus = mapDbStatusToAppStatus(dbProduct.status);
+  
+  // Trier les tests selon la priorité si le produit est en échec,
+  // sinon trier par date (du plus récent au plus ancien)
+  if (currentStatus === 'FAIL') {
+    tests.sort((a, b) => TEST_STATION_PRIORITY[a.station] - TEST_STATION_PRIORITY[b.station]);
+  } else {
+    tests.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  }
   
   // Generate a unique ID using num, position or a random string as fallback
   const id = dbProduct.num?.toString() || dbProduct.position?.toString() || Math.random().toString(36).substring(7);
