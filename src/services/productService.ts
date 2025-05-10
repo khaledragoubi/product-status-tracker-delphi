@@ -35,15 +35,15 @@ export const findProductByBarcode = async (barcode: string): Promise<Product | n
  */
 export const findLatestProductByBarcodeOrSfc = async (searchValue: string): Promise<Product | null> => {
   try {
-    // Essaie de rechercher par code_2d d'abord
-    let query = supabase
+    console.log('Searching for product with value:', searchValue);
+    
+    // Correction de la requête pour utiliser correctement les paramètres
+    const { data, error } = await supabase
       .from('trace_view')
       .select('*')
-      .or(`code_2d.eq.${searchValue},sfc.eq.${searchValue}`)
+      .or(`code_2d.eq."${searchValue}",sfc.eq."${searchValue}"`)
       .order('num', { ascending: false })
       .limit(1);
-
-    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching latest product:', error);
@@ -51,8 +51,11 @@ export const findLatestProductByBarcodeOrSfc = async (searchValue: string): Prom
     }
 
     if (!data || data.length === 0) {
+      console.log('No product found with search value:', searchValue);
       return null;
     }
+
+    console.log('Product found:', data[0]);
 
     // Compter le nombre total de passages pour ce produit
     const passageCount = await getProductPassageCount(data[0].code_2d || data[0].sfc);
@@ -76,7 +79,7 @@ export const getProductPassageCount = async (identifier: string | null): Promise
     const { data, error, count } = await supabase
       .from('trace_view')
       .select('*', { count: 'exact' })
-      .or(`code_2d.eq.${identifier},sfc.eq.${identifier}`);
+      .or(`code_2d.eq."${identifier}",sfc.eq."${identifier}"`)
 
     if (error) {
       console.error('Error counting product passages:', error);
