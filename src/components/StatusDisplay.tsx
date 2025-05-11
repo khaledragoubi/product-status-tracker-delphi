@@ -44,7 +44,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
         <div className="flex justify-between items-center">
           <CardTitle>Produit: {product.model}</CardTitle>
           <Badge className={`text-base px-3 py-1 ${
-            product.currentStatus === 'PASS' ? 'bg-success hover:bg-success/80' : 
+            product.currentStatus === 'PASS' ? 'bg-success text-success-foreground hover:bg-success/80' : 
             product.currentStatus === 'FAIL' ? 'bg-destructive hover:bg-destructive/80' : 
             'bg-warning hover:bg-warning/80'
           }`}>
@@ -103,7 +103,7 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-muted-foreground">{formatDate(test.timestamp)}</span>
                   <Badge className={`${
-                    test.status === 'PASS' ? 'bg-success hover:bg-success/80' : 
+                    test.status === 'PASS' ? 'bg-success text-success-foreground hover:bg-success/80' : 
                     test.status === 'FAIL' ? 'bg-destructive hover:bg-destructive/80' : 
                     'bg-warning hover:bg-warning/80'
                   }`}>
