@@ -37,25 +37,60 @@ export const findLatestProductByBarcodeOrSfc = async (searchValue: string): Prom
   try {
     console.log('Searching for product with value:', searchValue);
     
-    // Correction de la requête pour utiliser correctement les paramètres
+    // Approche alternative utilisant des filtres séparés pour une meilleure compatibilité
     const { data, error } = await supabase
       .from('trace_view')
       .select('*')
-      .or(`code_2d.eq."${searchValue}",sfc.eq."${searchValue}"`)
+      .or(`code_2d.eq.${searchValue},sfc.eq.${searchValue}`)
       .order('num', { ascending: false })
       .limit(1);
-
+    
     if (error) {
       console.error('Error fetching latest product:', error);
       return null;
     }
 
     if (!data || data.length === 0) {
-      console.log('No product found with search value:', searchValue);
-      return null;
+      // Essayons une autre approche si la première ne fonctionne pas
+      console.log('First attempt failed, trying alternative approach');
+      const secondAttempt = await supabase
+        .from('trace_view')
+        .select('*')
+        .filter('code_2d', 'eq', searchValue)
+        .order('num', { ascending: false })
+        .limit(1);
+        
+      if (secondAttempt.error) {
+        console.error('Error in second attempt:', secondAttempt.error);
+        return null;
+      }
+      
+      if (!secondAttempt.data || secondAttempt.data.length === 0) {
+        console.log('Second attempt failed, trying with SFC');
+        // Essayons avec SFC
+        const thirdAttempt = await supabase
+          .from('trace_view')
+          .select('*')
+          .filter('sfc', 'eq', searchValue)
+          .order('num', { ascending: false })
+          .limit(1);
+          
+        if (thirdAttempt.error || !thirdAttempt.data || thirdAttempt.data.length === 0) {
+          console.log('No product found with search value:', searchValue);
+          return null;
+        }
+        
+        console.log('Product found with SFC search:', thirdAttempt.data[0]);
+        const passageCount = await getProductPassageCount(thirdAttempt.data[0].code_2d || thirdAttempt.data[0].sfc);
+        return mapDbProductToAppProduct(thirdAttempt.data[0] as DbProduct, passageCount);
+      }
+      
+      console.log('Product found with code_2d search:', secondAttempt.data[0]);
+      const passageCount = await getProductPassageCount(secondAttempt.data[0].code_2d || secondAttempt.data[0].sfc);
+      return mapDbProductToAppProduct(secondAttempt.data[0] as DbProduct, passageCount);
     }
 
-    console.log('Product found:', data[0]);
+    console.log('Product found on first attempt:', data[0]);
 
     // Compter le nombre total de passages pour ce produit
     const passageCount = await getProductPassageCount(data[0].code_2d || data[0].sfc);
@@ -79,11 +114,21 @@ export const getProductPassageCount = async (identifier: string | null): Promise
     const { data, error, count } = await supabase
       .from('trace_view')
       .select('*', { count: 'exact' })
-      .or(`code_2d.eq."${identifier}",sfc.eq."${identifier}"`)
+      .or(`code_2d.eq.${identifier},sfc.eq.${identifier}`);
 
     if (error) {
       console.error('Error counting product passages:', error);
-      return 0;
+      // Essayer l'approche alternative
+      const secondAttempt = await supabase
+        .from('trace_view')
+        .select('*', { count: 'exact' })
+        .filter('code_2d', 'eq', identifier);
+        
+      if (secondAttempt.error || secondAttempt.count === null) {
+        return 0;
+      }
+      
+      return secondAttempt.count;
     }
 
     return count || 0;
