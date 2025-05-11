@@ -19,7 +19,15 @@ const ProductStatusCard: React.FC<ProductStatusCardProps> = ({ product }) => {
               product.currentStatus === 'FAIL' ? 'text-destructive' : 
               'text-warning'
             }`}>
-              {product.currentStatus}
+              {product.currentStatus === 'PASS' && (
+                <span className="text-success">PASS</span>
+              )}
+              {product.currentStatus === 'FAIL' && (
+                <span className="text-destructive">FAIL</span>
+              )}
+              {product.currentStatus === 'IN_PROGRESS' && (
+                <span className="text-warning">EN COURS</span>
+              )}
             </div>
           )}
         </div>

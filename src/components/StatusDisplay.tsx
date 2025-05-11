@@ -48,8 +48,15 @@ const StatusDisplay: React.FC<StatusDisplayProps> = ({ product }) => {
             product.currentStatus === 'FAIL' ? 'bg-destructive hover:bg-destructive/80' : 
             'bg-warning hover:bg-warning/80'
           }`}>
-            {product.currentStatus === 'PASS' ? 'PASS' : 
-            product.currentStatus === 'FAIL' ? 'FAIL' : 'EN COURS'}
+            {product.currentStatus === 'PASS' && (
+              <span className="text-success-foreground">PASS</span>
+            )}
+            {product.currentStatus === 'FAIL' && (
+              <span className="text-destructive-foreground">FAIL</span>
+            )}
+            {product.currentStatus === 'IN_PROGRESS' && (
+              <span>EN COURS</span>
+            )}
           </Badge>
         </div>
       </CardHeader>
