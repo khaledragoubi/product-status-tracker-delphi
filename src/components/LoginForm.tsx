@@ -14,25 +14,46 @@ interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  // Liste des utilisateurs autorisés (en production, cela serait stocké dans une base de données)
+  const authorizedUsers = [
+    { username: 'admin', password: 'admin123' },
+    { username: 'technicien', password: 'tech123' },
+    { username: 'test', password: 'test123' }
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     
     // Simple validation
     if (!username.trim()) {
       toast.error('Veuillez saisir un nom d\'utilisateur');
+      setLoading(false);
       return;
     }
     
     if (!password.trim()) {
       toast.error('Veuillez saisir un mot de passe');
+      setLoading(false);
       return;
     }
     
-    // For demo purposes, we'll accept any login
-    // In production, this would verify against a database
-    onLogin(username);
-    toast.success(`Bienvenue, ${username}`);
+    // Vérification des identifiants
+    const user = authorizedUsers.find(
+      user => user.username === username && user.password === password
+    );
+    
+    setTimeout(() => {
+      if (user) {
+        onLogin(username);
+        toast.success(`Bienvenue, ${username}`);
+      } else {
+        toast.error('Identifiants incorrects');
+      }
+      setLoading(false);
+    }, 600); // Petit délai pour simuler une vérification
   };
 
   return (
@@ -58,6 +79,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Entrez votre nom d'utilisateur"
+              disabled={loading}
             />
           </div>
           <div className="space-y-2">
@@ -68,15 +90,23 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Entrez votre mot de passe"
+              disabled={loading}
             />
           </div>
-          <Button type="submit" className="w-full">Se connecter</Button>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Vérification...' : 'Se connecter'}
+          </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center">
+      <CardFooter className="flex flex-col gap-2">
         <p className="text-sm text-muted-foreground">
-          Mode démonstration: n'importe quel identifiant est accepté
+          Utilisateurs de démonstration:
         </p>
+        <div className="text-xs text-muted-foreground bg-muted p-2 rounded-md w-full">
+          <p>admin / admin123</p>
+          <p>technicien / tech123</p>
+          <p>test / test123</p>
+        </div>
       </CardFooter>
     </Card>
   );
