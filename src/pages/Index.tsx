@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -208,6 +207,7 @@ const Index = () => {
           isLoading={isLoading} 
           error={error}
           onSelectProduct={selectProductFromHistory}
+          currentProduct={currentProduct}
         />
       </main>
       
