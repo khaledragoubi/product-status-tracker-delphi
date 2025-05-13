@@ -61,6 +61,15 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product }) => {
             <label className="block text-sm font-medium mb-1">SFC CIE</label>
             <Input readOnly value={product?.serialNumber || ''} className="bg-gray-50" />
           </div>
+          {/* New fields for hw_version and sw_produit */}
+          <div>
+            <label className="block text-sm font-medium mb-1">Version matérielle</label>
+            <Input readOnly value={product?.hwVersion || ''} className="bg-gray-50" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1">Version logicielle</label>
+            <Input readOnly value={product?.swProduct || ''} className="bg-gray-50" />
+          </div>
         </div>
       </CardContent>
     </Card>

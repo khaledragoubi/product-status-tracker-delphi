@@ -1,4 +1,3 @@
-
 export type TestStation = 
   | 'BLT' 
   | 'RF' 
@@ -87,6 +86,8 @@ export interface Product {
   position?: number;        // maps to position
   addressIo?: string;       // maps to adress_io
   passageCount: number;     // Number of entries for this product
+  hwVersion?: string;       // maps to hw_version - added field
+  swProduct?: string;       // maps to sw_produit - added field
 }
 
 // Fonction pour transformer les données de trace_view en notre modèle d'application
@@ -198,6 +199,8 @@ export const mapDbProductToAppProduct = (dbProduct: DbProduct, passageCount = 0)
     portOutil: dbProduct.num_porte_outil || undefined,
     position: dbProduct.position || undefined,
     addressIo: dbProduct.adress_io || '',
+    hwVersion: dbProduct.hw_version || '',      // Added hw_version field
+    swProduct: dbProduct.sw_produit || '',      // Added sw_produit field
     tests,
     currentStatus,
     failedStation,
