@@ -1,9 +1,17 @@
+
 import * as React from "react"
 import * as TooltipPrimitive from "@radix-ui/react-tooltip"
 
 import { cn } from "@/lib/utils"
 
-const TooltipProvider = TooltipPrimitive.Provider
+// Create a custom TooltipProvider that handles the React context properly
+const TooltipProvider = ({ children, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) => {
+  return (
+    <TooltipPrimitive.Provider delayDuration={700} {...props}>
+      {children}
+    </TooltipPrimitive.Provider>
+  )
+}
 
 const Tooltip = TooltipPrimitive.Root
 

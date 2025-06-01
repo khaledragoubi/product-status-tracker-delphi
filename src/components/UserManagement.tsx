@@ -1,77 +1,81 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { UserRole } from '@/hooks/useAuth';
 
 interface UserMetadata {
   id: string;
-  role: UserRole;
+  role: 'admin' | 'technicien_diag' | 'viewer';
   email?: string;
-  created_at: string;
 }
 
-const UserManagement: React.FC = () => {
-  const [users, setUsers] = useState<UserMetadata[]>([]);
-  const [loading, setLoading] = useState(true);
+const UserManagement = () => {
+  const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchUsers = async () => {
-    try {
-      // Get user metadata with roles
+  // Fetch all users with their metadata
+  const { data: users, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
       const { data: userMetadata, error: metadataError } = await supabase
         .from('user_metadata')
-        .select('*');
+        .select('id, role');
 
       if (metadataError) throw metadataError;
 
-      // Get user auth data (for emails)
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      // Get user emails from auth.users (admin only can access this)
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.warn('Could not fetch user emails:', authError);
+        return userMetadata?.map(user => ({
+          ...user,
+          email: 'Email not available'
+        })) || [];
+      }
 
-      if (authError) throw authError;
-
-      // Combine the data
-      const combinedUsers = userMetadata?.map(metadata => {
-        const authUser = authUsers.find(user => user.id === metadata.id);
+      return userMetadata?.map(user => {
+        const authUser = authUsers.users.find(au => au.id === user.id);
         return {
-          ...metadata,
-          email: authUser?.email
+          ...user,
+          email: authUser?.email || 'Email not available'
         };
       }) || [];
+    },
+  });
 
-      setUsers(combinedUsers);
-    } catch (error: any) {
-      console.error('Error fetching users:', error);
-      toast.error('Erreur lors du chargement des utilisateurs');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    try {
+  // Mutation to update user role
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
       const { error } = await supabase
         .from('user_metadata')
-        .update({ role: newRole, updated_at: new Date().toISOString() })
+        .update({ role: newRole })
         .eq('id', userId);
 
       if (error) throw error;
-
-      toast.success('Rôle mis à jour avec succès');
-      fetchUsers(); // Refresh the list
-    } catch (error: any) {
-      console.error('Error updating role:', error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('Rôle utilisateur mis à jour avec succès');
+      setUpdatingUserId(null);
+    },
+    onError: (error) => {
+      console.error('Error updating user role:', error);
       toast.error('Erreur lors de la mise à jour du rôle');
-    }
+      setUpdatingUserId(null);
+    },
+  });
+
+  const handleRoleUpdate = (userId: string, newRole: string) => {
+    setUpdatingUserId(userId);
+    updateRoleMutation.mutate({ userId, newRole });
   };
 
-  const getRoleLabel = (role: UserRole) => {
+  const getRoleLabel = (role: string) => {
     switch (role) {
       case 'admin': return 'Administrateur';
       case 'technicien_diag': return 'Technicien Diagnostic';
@@ -80,20 +84,38 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const getRoleBadgeColor = (role: UserRole) => {
+  const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'technicien_diag': return 'bg-blue-100 text-blue-800';
-      case 'viewer': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin': return 'bg-red-500/20 text-red-700';
+      case 'technicien_diag': return 'bg-blue-500/20 text-blue-700';
+      case 'viewer': return 'bg-gray-500/20 text-gray-700';
+      default: return 'bg-gray-500/20 text-gray-700';
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
-        <CardContent className="p-6">
-          <div className="text-center">Chargement des utilisateurs...</div>
+        <CardHeader>
+          <CardTitle>Gestion des Utilisateurs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4">Chargement des utilisateurs...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Gestion des Utilisateurs</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-red-600">
+            Erreur lors du chargement des utilisateurs
+          </div>
         </CardContent>
       </Card>
     );
@@ -102,43 +124,42 @@ const UserManagement: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gestion des utilisateurs</CardTitle>
+        <CardTitle>Gestion des Utilisateurs</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {users.length === 0 ? (
-            <div className="text-center text-gray-500">Aucun utilisateur trouvé</div>
-          ) : (
+          {users && users.length > 0 ? (
             users.map((user) => (
               <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium">{user.email || 'Email non disponible'}</div>
-                  <div className="text-sm text-gray-500">
-                    Créé le {new Date(user.created_at).toLocaleDateString('fr-FR')}
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}>
+                <div className="flex flex-col">
+                  <span className="font-medium">{user.email}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full inline-block w-fit ${getRoleBadgeColor(user.role)}`}>
                     {getRoleLabel(user.role)}
                   </span>
-                  
+                </div>
+                <div className="flex items-center gap-2">
                   <Select
                     value={user.role}
-                    onValueChange={(newRole: UserRole) => handleRoleChange(user.id, newRole)}
+                    onValueChange={(newRole) => handleRoleUpdate(user.id, newRole)}
+                    disabled={updatingUserId === user.id}
                   >
-                    <SelectTrigger className="w-40">
+                    <SelectTrigger className="w-[200px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Administrateur</SelectItem>
-                      <SelectItem value="technicien_diag">Technicien Diagnostic</SelectItem>
                       <SelectItem value="viewer">Visualiseur</SelectItem>
+                      <SelectItem value="technicien_diag">Technicien Diagnostic</SelectItem>
+                      <SelectItem value="admin">Administrateur</SelectItem>
                     </SelectContent>
                   </Select>
+                  {updatingUserId === user.id && (
+                    <div className="text-sm text-gray-500">Mise à jour...</div>
+                  )}
                 </div>
               </div>
             ))
+          ) : (
+            <div className="text-center py-4">Aucun utilisateur trouvé</div>
           )}
         </div>
       </CardContent>
