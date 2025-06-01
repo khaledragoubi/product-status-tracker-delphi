@@ -1,10 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { toast } from '@/components/ui/sonner';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Product } from '@/types/product';
 import { getRecentProducts, clearAllLogs, exportProductsToCSV, findLatestProductByBarcodeOrSfc } from '@/services/productService';
+import { useAuth } from '@/hooks/useAuth';
 
-import LoginForm from '@/components/LoginForm';
 import AppHeader from '@/components/AppHeader';
 import AppFooter from '@/components/AppFooter';
 import ProductScannerCard from '@/components/ProductScannerCard';
@@ -13,19 +15,31 @@ import FailureDetails from '@/components/FailureDetails';
 import ProductStatusCard from '@/components/ProductStatusCard';
 import ActionButtons from '@/components/ActionButtons';
 import ProductHistoryTable from '@/components/ProductHistoryTable';
+import ProductAnnotationForm from '@/components/ProductAnnotationForm';
+import UserManagement from '@/components/UserManagement';
 
 const Index = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [scanHistory, setScanHistory] = useState<Product[]>([]);
-  const [user, setUser] = useState<string | null>(null);
   const [isScanning, setIsScanning] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [showUserManagement, setShowUserManagement] = useState(false);
   
+  // Redirect to auth if not authenticated
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
   // Récupérer les produits récents au chargement de la page
   const { data: recentProducts, isLoading, error, refetch } = useQuery({
     queryKey: ['recentProducts'],
     queryFn: () => getRecentProducts(5),
+    enabled: !!user, // Only fetch when user is authenticated
   });
 
   // Mettre à jour l'historique de scan au chargement des produits récents
@@ -34,14 +48,6 @@ const Index = () => {
       setScanHistory(recentProducts);
     }
   }, [recentProducts]);
-  
-  // Vérifier si l'utilisateur est déjà connecté depuis localStorage
-  useEffect(() => {
-    const savedUser = localStorage.getItem('delphiUser');
-    if (savedUser) {
-      setUser(savedUser);
-    }
-  }, []);
   
   const handleScan = async (barcode: string) => {
     setIsScanning(true);
@@ -80,14 +86,9 @@ const Index = () => {
     setCurrentProduct(product);
   };
   
-  const handleLogin = (username: string) => {
-    setUser(username);
-    localStorage.setItem('delphiUser', username);
-  };
-  
-  const handleLogout = () => {
-    setUser(null);
-    localStorage.removeItem('delphiUser');
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
     toast.info('Vous avez été déconnecté');
   };
 
@@ -149,27 +150,21 @@ const Index = () => {
     }
   };
 
-  // Si l'utilisateur n'est pas connecté, afficher le formulaire de connexion
-  if (!user) {
+  // Show loading while auth is being checked
+  if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <header className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <img 
-                src="/lovable-uploads/52a12bc6-eba5-4826-8c18-1d971f9e1b2d.png" 
-                alt="Logo ACTIA" 
-                className="h-16" 
-              />
-            </div>
-            <h1 className="text-2xl font-bold text-primary">SAV AMY IO Nc log</h1>
-            <p className="text-sm opacity-90">Système de Suivi des Produits</p>
-          </header>
-          
-          <LoginForm onLogin={handleLogin} />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4">Chargement...</p>
         </div>
       </div>
     );
+  }
+
+  // Don't render anything if user is not authenticated (will redirect)
+  if (!user) {
+    return null;
   }
 
   return (
@@ -177,7 +172,21 @@ const Index = () => {
       <AppHeader user={user} onLogout={handleLogout} />
       
       <main className="container mx-auto px-4 py-4">
-        {/* Scanner Card */}
+        {/* Admin Panel */}
+        {user.role === 'admin' && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowUserManagement(!showUserManagement)}
+              className="mb-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              {showUserManagement ? 'Masquer' : 'Afficher'} la gestion des utilisateurs
+            </button>
+            
+            {showUserManagement && <UserManagement />}
+          </div>
+        )}
+
+        {/* Scanner Card - All authenticated users can scan */}
         <ProductScannerCard onScan={handleScan} />
         
         {/* Product Details */}
@@ -190,16 +199,30 @@ const Index = () => {
           {/* Status and Action Buttons */}
           <div className="flex flex-col gap-4">
             <ProductStatusCard product={currentProduct} />
-            <div className="flex justify-end">
-              <ActionButtons 
-                onExportLogs={handleExportLogs} 
-                onClearAllLogs={handleClearAllLogs}
-                isExporting={isExporting}
-                isClearing={isClearing}
-              />
-            </div>
+            {(user.role === 'admin') && (
+              <div className="flex justify-end">
+                <ActionButtons 
+                  onExportLogs={handleExportLogs} 
+                  onClearAllLogs={handleClearAllLogs}
+                  isExporting={isExporting}
+                  isClearing={isClearing}
+                />
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Product Annotation Form - Only for admin and technicien_diag */}
+        {currentProduct && (user.role === 'admin' || user.role === 'technicien_diag') && (
+          <div className="mb-4">
+            <ProductAnnotationForm 
+              product={currentProduct} 
+              onAnnotationAdded={() => {
+                toast.success('Annotation ajoutée avec succès');
+              }}
+            />
+          </div>
+        )}
 
         {/* Product History Table */}
         <ProductHistoryTable 

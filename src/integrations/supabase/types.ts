@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      product_annotations: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          created_by: string
+          defect_nature: string
+          defect_type: string
+          diagnostic_date: string
+          id: string
+          product_key: string
+          topographic_reference: string
+          updated_at: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          created_by: string
+          defect_nature: string
+          defect_type: string
+          diagnostic_date?: string
+          id?: string
+          product_key: string
+          topographic_reference: string
+          updated_at?: string
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          created_by?: string
+          defect_nature?: string
+          defect_type?: string
+          diagnostic_date?: string
+          id?: string
+          product_key?: string
+          topographic_reference?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       trace_view: {
         Row: {
           adress_io: string | null
@@ -120,15 +159,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_metadata: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_user_role: {
+        Args: { requested_role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "technicien_diag" | "viewer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -243,6 +306,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "technicien_diag", "viewer"],
+    },
   },
 } as const

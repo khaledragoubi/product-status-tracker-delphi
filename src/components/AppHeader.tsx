@@ -1,13 +1,32 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { UserWithRole } from '@/hooks/useAuth';
 
 interface AppHeaderProps {
-  user: string | null;
+  user: UserWithRole | null;
   onLogout: () => void;
 }
 
 const AppHeader: React.FC<AppHeaderProps> = ({ user, onLogout }) => {
+  const getRoleLabel = (role?: string) => {
+    switch (role) {
+      case 'admin': return 'Administrateur';
+      case 'technicien_diag': return 'Technicien Diagnostic';
+      case 'viewer': return 'Visualiseur';
+      default: return 'Utilisateur';
+    }
+  };
+
+  const getRoleBadgeColor = (role?: string) => {
+    switch (role) {
+      case 'admin': return 'bg-red-500/20 text-red-300';
+      case 'technicien_diag': return 'bg-blue-500/20 text-blue-300';
+      case 'viewer': return 'bg-gray-500/20 text-gray-300';
+      default: return 'bg-gray-500/20 text-gray-300';
+    }
+  };
+
   return (
     <header className="bg-primary text-primary-foreground shadow-md">
       <div className="container mx-auto px-4 py-2">
@@ -22,7 +41,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({ user, onLogout }) => {
           </div>
           <div className="flex items-center gap-4">
             <div className="bg-primary-foreground/20 px-3 py-1 rounded-md">
-              <p className="text-sm">Technicien: {user}</p>
+              <p className="text-sm">{user?.email}</p>
+              <p className={`text-xs px-2 py-1 rounded-full ${getRoleBadgeColor(user?.role)}`}>
+                {getRoleLabel(user?.role)}
+              </p>
             </div>
             <Button 
               variant="outline" 
