@@ -7,9 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
 
+type UserRole = 'admin' | 'technicien_diag' | 'viewer';
+
 interface UserMetadata {
   id: string;
-  role: 'admin' | 'technicien_diag' | 'viewer';
+  role: UserRole;
   email?: string;
 }
 
@@ -20,7 +22,7 @@ const UserManagement = () => {
   // Fetch all users with their metadata
   const { data: users, isLoading, error } = useQuery({
     queryKey: ['users'],
-    queryFn: async () => {
+    queryFn: async (): Promise<UserMetadata[]> => {
       const { data: userMetadata, error: metadataError } = await supabase
         .from('user_metadata')
         .select('id, role');
@@ -28,7 +30,7 @@ const UserManagement = () => {
       if (metadataError) throw metadataError;
 
       // Get user emails from auth.users (admin only can access this)
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      const { data: authUsersResponse, error: authError } = await supabase.auth.admin.listUsers();
       
       if (authError) {
         console.warn('Could not fetch user emails:', authError);
@@ -39,7 +41,7 @@ const UserManagement = () => {
       }
 
       return userMetadata?.map(user => {
-        const authUser = authUsers.users.find(au => au.id === user.id);
+        const authUser = authUsersResponse.users?.find((au: any) => au.id === user.id);
         return {
           ...user,
           email: authUser?.email || 'Email not available'
@@ -50,7 +52,7 @@ const UserManagement = () => {
 
   // Mutation to update user role
   const updateRoleMutation = useMutation({
-    mutationFn: async ({ userId, newRole }: { userId: string; newRole: string }) => {
+    mutationFn: async ({ userId, newRole }: { userId: string; newRole: UserRole }) => {
       const { error } = await supabase
         .from('user_metadata')
         .update({ role: newRole })
@@ -72,10 +74,10 @@ const UserManagement = () => {
 
   const handleRoleUpdate = (userId: string, newRole: string) => {
     setUpdatingUserId(userId);
-    updateRoleMutation.mutate({ userId, newRole });
+    updateRoleMutation.mutate({ userId, newRole: newRole as UserRole });
   };
 
-  const getRoleLabel = (role: string) => {
+  const getRoleLabel = (role: UserRole) => {
     switch (role) {
       case 'admin': return 'Administrateur';
       case 'technicien_diag': return 'Technicien Diagnostic';
@@ -84,7 +86,7 @@ const UserManagement = () => {
     }
   };
 
-  const getRoleBadgeColor = (role: string) => {
+  const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
       case 'admin': return 'bg-red-500/20 text-red-700';
       case 'technicien_diag': return 'bg-blue-500/20 text-blue-700';
