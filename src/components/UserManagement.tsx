@@ -35,7 +35,8 @@ const UserManagement = () => {
       if (authError) {
         console.warn('Could not fetch user emails:', authError);
         return userMetadata?.map(user => ({
-          ...user,
+          id: user.id,
+          role: user.role as UserRole,
           email: 'Email not available'
         })) || [];
       }
@@ -43,7 +44,8 @@ const UserManagement = () => {
       return userMetadata?.map(user => {
         const authUser = authUsersResponse.users?.find((au: any) => au.id === user.id);
         return {
-          ...user,
+          id: user.id,
+          role: user.role as UserRole,
           email: authUser?.email || 'Email not available'
         };
       }) || [];

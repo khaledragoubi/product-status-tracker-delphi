@@ -14,7 +14,254 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      product_annotations: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          created_by: string
+          defect_nature: string
+          defect_type: string
+          id: string
+          product_key: string
+          topographic_reference: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          created_by: string
+          defect_nature: string
+          defect_type: string
+          id?: string
+          product_key: string
+          topographic_reference: string
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          created_by?: string
+          defect_nature?: string
+          defect_type?: string
+          id?: string
+          product_key?: string
+          topographic_reference?: string
+        }
+        Relationships: []
+      }
+      product_tests: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          product_id: string
+          station: string
+          status: string
+          test_timestamp: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          product_id: string
+          station: string
+          status: string
+          test_timestamp?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          product_id?: string
+          station?: string
+          status?: string
+          test_timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_tests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          code_2d: string | null
+          created_at: string
+          failed_station: string | null
+          failure_date: string | null
+          final_status: string | null
+          id: string
+          operator_notes: string | null
+          passage_count: number | null
+          product_key: string | null
+          sfc: string
+          updated_at: string
+        }
+        Insert: {
+          code_2d?: string | null
+          created_at?: string
+          failed_station?: string | null
+          failure_date?: string | null
+          final_status?: string | null
+          id?: string
+          operator_notes?: string | null
+          passage_count?: number | null
+          product_key?: string | null
+          sfc: string
+          updated_at?: string
+        }
+        Update: {
+          code_2d?: string | null
+          created_at?: string
+          failed_station?: string | null
+          failure_date?: string | null
+          final_status?: string | null
+          id?: string
+          operator_notes?: string | null
+          passage_count?: number | null
+          product_key?: string | null
+          sfc?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      trace_view: {
+        Row: {
+          adress_io: string | null
+          blt_date_heure: string | null
+          calibration_data: string | null
+          code_2d: string | null
+          config_ligne: string | null
+          created_at: string
+          hw_version: string | null
+          nc_log_bl: string | null
+          nc_log_rf: string | null
+          nc_log_rf_slide: string | null
+          nc_log_uft: string | null
+          nc_log_vision: string | null
+          num: number
+          num_porte_outil: number | null
+          num_poste_blt: number | null
+          num_poste_rf: number | null
+          num_poste_rf_slider: number | null
+          num_poste_uft: number | null
+          param_test: string | null
+          position: number | null
+          product_key: string | null
+          ref_pcba_actia: string | null
+          ref_pcba_somfy: string | null
+          rf_date_heure: string | null
+          rf_slider_date_heure: string | null
+          sfc: string | null
+          status: number | null
+          status_blt_sfc: number | null
+          status_rf_sfc: number | null
+          status_rf_slider_sfc: number | null
+          status_uft_sfc: number | null
+          status_vision_sfc: number | null
+          sw_produit: string | null
+          uft_date_heure: string | null
+          vision_date_heure: string | null
+        }
+        Insert: {
+          adress_io?: string | null
+          blt_date_heure?: string | null
+          calibration_data?: string | null
+          code_2d?: string | null
+          config_ligne?: string | null
+          created_at?: string
+          hw_version?: string | null
+          nc_log_bl?: string | null
+          nc_log_rf?: string | null
+          nc_log_rf_slide?: string | null
+          nc_log_uft?: string | null
+          nc_log_vision?: string | null
+          num?: number
+          num_porte_outil?: number | null
+          num_poste_blt?: number | null
+          num_poste_rf?: number | null
+          num_poste_rf_slider?: number | null
+          num_poste_uft?: number | null
+          param_test?: string | null
+          position?: number | null
+          product_key?: string | null
+          ref_pcba_actia?: string | null
+          ref_pcba_somfy?: string | null
+          rf_date_heure?: string | null
+          rf_slider_date_heure?: string | null
+          sfc?: string | null
+          status?: number | null
+          status_blt_sfc?: number | null
+          status_rf_sfc?: number | null
+          status_rf_slider_sfc?: number | null
+          status_uft_sfc?: number | null
+          status_vision_sfc?: number | null
+          sw_produit?: string | null
+          uft_date_heure?: string | null
+          vision_date_heure?: string | null
+        }
+        Update: {
+          adress_io?: string | null
+          blt_date_heure?: string | null
+          calibration_data?: string | null
+          code_2d?: string | null
+          config_ligne?: string | null
+          created_at?: string
+          hw_version?: string | null
+          nc_log_bl?: string | null
+          nc_log_rf?: string | null
+          nc_log_rf_slide?: string | null
+          nc_log_uft?: string | null
+          nc_log_vision?: string | null
+          num?: number
+          num_porte_outil?: number | null
+          num_poste_blt?: number | null
+          num_poste_rf?: number | null
+          num_poste_rf_slider?: number | null
+          num_poste_uft?: number | null
+          param_test?: string | null
+          position?: number | null
+          product_key?: string | null
+          ref_pcba_actia?: string | null
+          ref_pcba_somfy?: string | null
+          rf_date_heure?: string | null
+          rf_slider_date_heure?: string | null
+          sfc?: string | null
+          status?: number | null
+          status_blt_sfc?: number | null
+          status_rf_sfc?: number | null
+          status_rf_slider_sfc?: number | null
+          status_uft_sfc?: number | null
+          status_vision_sfc?: number | null
+          sw_produit?: string | null
+          uft_date_heure?: string | null
+          vision_date_heure?: string | null
+        }
+        Relationships: []
+      }
+      user_metadata: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

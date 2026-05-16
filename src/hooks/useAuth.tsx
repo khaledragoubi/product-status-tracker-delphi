@@ -30,7 +30,7 @@ export const useAuth = () => {
           
           setUser({
             ...session.user,
-            role: userMetadata?.role || 'viewer'
+            role: (userMetadata?.role as UserRole) || 'viewer'
           });
         } else {
           setUser(null);
@@ -51,7 +51,7 @@ export const useAuth = () => {
           .then(({ data: userMetadata }) => {
             setUser({
               ...session.user,
-              role: userMetadata?.role || 'viewer'
+              role: (userMetadata?.role as UserRole) || 'viewer'
             });
             setSession(session);
             setLoading(false);
