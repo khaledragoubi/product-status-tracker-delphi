@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      product_annotations: {
+        Row: {
+          additional_notes: string | null
+          created_at: string
+          created_by: string
+          defect_nature: string
+          defect_type: string
+          id: string
+          product_key: string
+          topographic_reference: string
+        }
+        Insert: {
+          additional_notes?: string | null
+          created_at?: string
+          created_by: string
+          defect_nature: string
+          defect_type: string
+          id?: string
+          product_key: string
+          topographic_reference: string
+        }
+        Update: {
+          additional_notes?: string | null
+          created_at?: string
+          created_by?: string
+          defect_nature?: string
+          defect_type?: string
+          id?: string
+          product_key?: string
+          topographic_reference?: string
+        }
+        Relationships: []
+      }
       product_tests: {
         Row: {
           created_at: string
@@ -205,6 +238,27 @@ export type Database = {
           sw_produit?: string | null
           uft_date_heure?: string | null
           vision_date_heure?: string | null
+        }
+        Relationships: []
+      }
+      user_metadata: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          updated_at?: string
         }
         Relationships: []
       }
