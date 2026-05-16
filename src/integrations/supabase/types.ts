@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      product_tests: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          product_id: string
+          station: string
+          status: string
+          test_timestamp: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          product_id: string
+          station: string
+          status: string
+          test_timestamp?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          product_id?: string
+          station?: string
+          status?: string
+          test_timestamp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_tests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          code_2d: string | null
+          created_at: string
+          failed_station: string | null
+          failure_date: string | null
+          final_status: string | null
+          id: string
+          operator_notes: string | null
+          passage_count: number | null
+          product_key: string | null
+          sfc: string
+          updated_at: string
+        }
+        Insert: {
+          code_2d?: string | null
+          created_at?: string
+          failed_station?: string | null
+          failure_date?: string | null
+          final_status?: string | null
+          id?: string
+          operator_notes?: string | null
+          passage_count?: number | null
+          product_key?: string | null
+          sfc: string
+          updated_at?: string
+        }
+        Update: {
+          code_2d?: string | null
+          created_at?: string
+          failed_station?: string | null
+          failure_date?: string | null
+          final_status?: string | null
+          id?: string
+          operator_notes?: string | null
+          passage_count?: number | null
+          product_key?: string | null
+          sfc?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
