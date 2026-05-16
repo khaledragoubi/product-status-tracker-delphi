@@ -94,6 +94,120 @@ export type Database = {
         }
         Relationships: []
       }
+      trace_view: {
+        Row: {
+          adress_io: string | null
+          blt_date_heure: string | null
+          calibration_data: string | null
+          code_2d: string | null
+          config_ligne: string | null
+          created_at: string
+          hw_version: string | null
+          nc_log_bl: string | null
+          nc_log_rf: string | null
+          nc_log_rf_slide: string | null
+          nc_log_uft: string | null
+          nc_log_vision: string | null
+          num: number
+          num_porte_outil: number | null
+          num_poste_blt: number | null
+          num_poste_rf: number | null
+          num_poste_rf_slider: number | null
+          num_poste_uft: number | null
+          param_test: string | null
+          position: number | null
+          product_key: string | null
+          ref_pcba_actia: string | null
+          ref_pcba_somfy: string | null
+          rf_date_heure: string | null
+          rf_slider_date_heure: string | null
+          sfc: string | null
+          status: number | null
+          status_blt_sfc: number | null
+          status_rf_sfc: number | null
+          status_rf_slider_sfc: number | null
+          status_uft_sfc: number | null
+          status_vision_sfc: number | null
+          sw_produit: string | null
+          uft_date_heure: string | null
+          vision_date_heure: string | null
+        }
+        Insert: {
+          adress_io?: string | null
+          blt_date_heure?: string | null
+          calibration_data?: string | null
+          code_2d?: string | null
+          config_ligne?: string | null
+          created_at?: string
+          hw_version?: string | null
+          nc_log_bl?: string | null
+          nc_log_rf?: string | null
+          nc_log_rf_slide?: string | null
+          nc_log_uft?: string | null
+          nc_log_vision?: string | null
+          num?: number
+          num_porte_outil?: number | null
+          num_poste_blt?: number | null
+          num_poste_rf?: number | null
+          num_poste_rf_slider?: number | null
+          num_poste_uft?: number | null
+          param_test?: string | null
+          position?: number | null
+          product_key?: string | null
+          ref_pcba_actia?: string | null
+          ref_pcba_somfy?: string | null
+          rf_date_heure?: string | null
+          rf_slider_date_heure?: string | null
+          sfc?: string | null
+          status?: number | null
+          status_blt_sfc?: number | null
+          status_rf_sfc?: number | null
+          status_rf_slider_sfc?: number | null
+          status_uft_sfc?: number | null
+          status_vision_sfc?: number | null
+          sw_produit?: string | null
+          uft_date_heure?: string | null
+          vision_date_heure?: string | null
+        }
+        Update: {
+          adress_io?: string | null
+          blt_date_heure?: string | null
+          calibration_data?: string | null
+          code_2d?: string | null
+          config_ligne?: string | null
+          created_at?: string
+          hw_version?: string | null
+          nc_log_bl?: string | null
+          nc_log_rf?: string | null
+          nc_log_rf_slide?: string | null
+          nc_log_uft?: string | null
+          nc_log_vision?: string | null
+          num?: number
+          num_porte_outil?: number | null
+          num_poste_blt?: number | null
+          num_poste_rf?: number | null
+          num_poste_rf_slider?: number | null
+          num_poste_uft?: number | null
+          param_test?: string | null
+          position?: number | null
+          product_key?: string | null
+          ref_pcba_actia?: string | null
+          ref_pcba_somfy?: string | null
+          rf_date_heure?: string | null
+          rf_slider_date_heure?: string | null
+          sfc?: string | null
+          status?: number | null
+          status_blt_sfc?: number | null
+          status_rf_sfc?: number | null
+          status_rf_slider_sfc?: number | null
+          status_uft_sfc?: number | null
+          status_vision_sfc?: number | null
+          sw_produit?: string | null
+          uft_date_heure?: string | null
+          vision_date_heure?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
